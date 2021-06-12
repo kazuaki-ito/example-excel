@@ -1,0 +1,28 @@
+version: "3"
+services:
+  app:
+    environment:
+      - COMPOSER_MEMORY_LIMIT=-1
+    build:
+      context: docker/app/
+      dockerfile: Dockerfile
+    hostname: app
+    volumes:
+      - .:/var/www/app
+      - ./.ssh/ssh_host_rsa_key:/root/.ssh/ssh_host_rsa_key
+    #extra_hosts:
+    #  - "docker.host:${DOCKER_HOST_IP}"
+
+  web:
+    image: nginx:alpine
+    hostname: web
+    ports:
+      - "80:80"
+    links:
+      - app
+    depends_on:
+      - app
+    volumes:
+      - .:/var/www/app
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./data/nginx/log:/var/log/nginx
